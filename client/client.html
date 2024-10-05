@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 1 (Pokémon API)</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <script>
+        const init = () => {
+            const descriptionForm = document.querySelector('#descriptionForm');
+            const ratingForm = document.querySelector('#ratingForm');
+
+            const addDescription = (e) => {
+                e.preventDefault();
+                sendPost(descriptionForm);
+                return false;
+            }
+
+            const addRating = (e) => {
+                e.preventDefault();
+                sendPost(ratingForm);
+                return false;
+            }
+
+            //add event listeners
+            descriptionForm.addEventListener('submit', addDescription);
+            ratingForm.addEventListener('submit', addRating);
+        }
+
+        const handleResponse = async (response, parseResponse, endpointNum) => {
+            const content = document.getElementsByClassName('result')[endpointNum];
+            console.log(response.status);
+            switch (response.status) {
+                case 200:
+                    content.innerHTML = `<b>Success</b>`;
+                    break;
+                case 201:
+                    content.innerHTML = `<b>Created</b>`;
+                    break;
+                case 204:
+                    content.innerHTML = `<b>Updated (No Content)</b>`;
+                    break;
+                case 400:
+                    content.innerHTML = `<b>Bad Request</b>`;
+                    break;
+                case 404:
+                    content.innerHTML = `<b>Resource Not Found</b>`;
+                    break;
+                default:
+                    content.innerHTML = `Error code not implemented by client.`;
+                    break;
+            }
+
+            //If we should parse a response (meaning we made a get request)
+            // if (parseResponse) {
+            //     //Parse the response to json. This is an async function, so we will await it.
+            //     let obj = await response.json();
+            //     console.log(obj);
+            //     //   if (response.status === 200) {
+            //     //     content.innerHTML += `<p>${JSON.stringify(obj.users)}</p>`;
+            //     //   } else { // show message for all other status codes
+            //     //     content.innerHTML += `<p>${obj.message}</p>`;
+            //     //   }
+            // }
+        };
+
+        const sendPost = async (form) => {
+            //Grab all the info from the form
+            const url = form.getAttribute('action');
+            const method = form.getAttribute('method');
+            if (form.getAttribute('id') == 'descriptionForm') {
+                const idField = form.querySelector('#idField');
+                const descriptionField = form.querySelector('#descriptionField');
+
+                //Build a data string in the FORM-URLENCODED format.
+                const formData = `id=${idField.value}&description=${descriptionField.value}`;
+                console.log(formData)
+
+                //Make a fetch request and await a response. Set the method to
+                //the one provided by the form (POST). Set the headers. Content-Type
+                //is the type of data we are sending. Accept is the data we would like
+                //in response. Then add our FORM-URLENCODED string as the body of the request.
+                let response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json',
+                    },
+                    body: formData,
+                });
+                //Once we have a response, handle it.
+                handleResponse(response, response.status !== 204, 0);
+            }
+
+            if (form.getAttribute('id') == 'ratingForm') {
+                const idField = form.querySelector('#idField');
+                const ratingField = form.querySelector('#ratingField');
+
+                //Build a data string in the FORM-URLENCODED format.
+                const formData = `id=${idField.value}&rating=${ratingField.value}`;
+                console.log(formData)
+
+                //Make a fetch request and await a response. Set the method to
+                //the one provided by the form (POST). Set the headers. Content-Type
+                //is the type of data we are sending. Accept is the data we would like
+                //in response. Then add our FORM-URLENCODED string as the body of the request.
+                let response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json',
+                    },
+                    body: formData,
+                });
+                //Once we have a response, handle it.
+                handleResponse(response, response.status !== 204, 1);
+            }
+
+        };
+
+        window.onload = init;
+    </script>
+</head>
+
+<body>
+    <div class="mainContent">
+        <!-- <a href="/docs">API Documentation</a> -->
+        <h1>Test Pokemon API</h1>
+
+        <!-- 
+    <div class="endpoint">
+        <h2 class="collapsible">
+          /api/getRandom <span class="methods"><code>GET</code> <code>HEAD</code></span>
+        </h2>
+        <div class="content">
+          <div class="content-box">
+            <h3>Test This Endpoint</h3>
+            <form data-method="GET" data-endpoint="/api/getRandom">
+              <label><input type="radio" name="method" value="GET" checked> GET</label>
+              <label><input type="radio" name="method" value="HEAD"> HEAD</label><br>
+              <button type="submit">Send Request</button>
+            </form>
+            <pre class="result"></pre>
+          </div>
+        </div>
+      </div>
+
+    <div class="endpoint">
+      <h2 class="collapsible">
+        /api/getFilmTitles <span class="methods"><code>GET</code> <code>HEAD</code></span>
+      </h2>
+      <div class="content">
+        <div class="content-box">
+          <h3>Test This Endpoint</h3>
+          <form data-method="GET" data-endpoint="/api/getFilmTitles">
+            <label>Actor: <input type="text" name="actor"></label><br>
+            <label>Year: <input type="text" name="year"></label><br>
+            <label><input type="radio" name="method" value="GET" checked> GET</label>
+            <label><input type="radio" name="method" value="HEAD"> HEAD</label><br>
+            <button type="submit">Send Request</button>
+          </form>
+          <pre class="result"></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <h2 class="collapsible">
+        /api/getFilms <span class="methods"><code>GET</code> <code>HEAD</code></span>
+      </h2>
+      <div class="content">
+        <div class="content-box">
+          <h3>Test This Endpoint</h3>
+          <form data-method="GET" data-endpoint="/api/getFilms">
+            <label>Title: <input type="text" name="title"></label><br>
+            <label>Actor: <input type="text" name="actor"></label><br>
+            <label>Year: <input type="text" name="year"></label><br>
+            <label><input type="radio" name="method" value="GET" checked> GET</label>
+            <label><input type="radio" name="method" value="HEAD"> HEAD</label><br>
+            <button type="submit">Send Request</button>
+          </form>
+          <pre class="result"></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <h2 class="collapsible">
+        /api/getFilm <span class="methods"><code>GET</code> <code>HEAD</code></span>
+      </h2>
+      <div class="content">
+        <div class="content-box">
+          <h3>Test This Endpoint</h3>
+          <form data-method="GET" data-endpoint="/api/getFilm">
+            <label>Title: <input type="text" name="title"></label><br>
+            <label><input type="radio" name="method" value="GET" checked> GET</label>
+            <label><input type="radio" name="method" value="HEAD"> HEAD</label><br>
+            <button type="submit">Send Request</button>
+          </form>
+          <pre class="result"></pre>
+        </div>
+      </div>
+    </div> -->
+
+        <div class="endpoint">
+            <h2 class="collapsible">
+                /addDescription <span class="methods"><code>POST</code></span>
+            </h2>
+            <div class="content">
+                <div class="content-box">
+                    <h3>Test This Endpoint</h3>
+                    <form id="descriptionForm" action="/addDescription" method="post">
+                        <label>ID: <input type="text" name="id" id="idField"></label><br>
+                        <label>Description: <input type="text" name="description" id="descriptionField"></label><br>
+                        <button type="submit">Send Request</button>
+                    </form>
+                    <pre class="result"></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <h2 class="collapsible">
+                /addRating <span class="methods"><code>POST</code></span>
+            </h2>
+            <div class="content">
+                <div class="content-box">
+                    <h3>Test This Endpoint</h3>
+                    <form id="ratingForm" action="/addRating" method="post">
+                        <label>ID: <input type="text" id="idField"></label><br>
+                        <label>Rating: <input type="text" id="ratingField"></label><br>
+                        <button type="submit">Send Request</button>
+                    </form>
+                    <pre class="result"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
